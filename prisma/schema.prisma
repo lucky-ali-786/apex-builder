@@ -1,0 +1,63 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../lib/generated/prisma"
+}
+datasource db {
+  provider = "postgresql"
+}
+model User {
+  id        String    @id @default(cuid())
+  name      String?
+  email     String    @unique
+  projects  Project[]
+  clerkId   String    @unique
+  createdAt DateTime  @default(now())
+  updatdAt DateTime  @updatedAt 
+  image     String?
+}
+model Project {
+  id        String    @id @default(cuid())
+  name      String
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  sandboxId String? 
+  
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  messages  Message[]
+}
+
+enum MessageType {
+  RESULT
+  ERROR
+}
+enum MessageRole {
+  USER
+  ASSISTANT
+}
+model Message {
+  id        String    @id @default(cuid())
+  content   String
+  type      MessageType
+  role      MessageRole
+  projectId String
+  project   Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  fragments Fragment?
+}
+model Fragment {
+  id         String   @id @default(cuid())
+  messageId  String   @unique
+  message    Message  @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  title      String
+  files      Json     // We will store our single-file code right inside this JSON
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+model Usage {
+  key    String    @id
+  points Int
+  expire DateTime?
+}
