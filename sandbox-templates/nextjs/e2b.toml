@@ -1,0 +1,17 @@
+# This is a config for E2B sandbox template.
+# You can use template ID (8il0yuxjjyq99cvyho3s) or template name (apex-builder) to create a sandbox:
+
+# Python SDK
+# from e2b import Sandbox, AsyncSandbox
+# sandbox = Sandbox.create("apex-builder") # Sync sandbox
+# sandbox = await AsyncSandbox.create("apex-builder") # Async sandbox
+
+# JS SDK
+# import { Sandbox } from 'e2b'
+# const sandbox = await Sandbox.create('apex-builder')
+
+team_id = "7c27b31e-586f-4edb-beb4-e26857b8f3b1"
+start_cmd = "./compile_page.sh"
+dockerfile = "e2b.Dockerfile"
+template_name = "apex-builder"
+template_id = "8il0yuxjjyq99cvyho3s"
