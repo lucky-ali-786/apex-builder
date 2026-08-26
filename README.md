@@ -12,10 +12,19 @@ Built with an enterprise-grade architecture, it leverages the **Gemini API** for
 ## ✨ Key Features
 
 * **Secure Remote Execution:** Dynamically compiles and renders generated React code within isolated E2B Sandboxes, protected by strict Iframe sandboxing and Content Security Policy (CSP) headers to prevent XSS.
-* **Token-Optimized AI Engine:** Implements a state-aware prompt strategy that transmits only the active code fragment to the LLM (rather than the full chat history), slashing token consumption by 70% and reducing generation latency to sub-2 seconds.
-* **Resilient Asynchronous Pipeline:** Orchestrates long-running AI workflows using **Inngest** and **TanStack Query**, completely eliminating Next.js server timeouts and ensuring 99.99% execution reliability.
+* **Token-Optimized AI Engine:** Implements a state-aware prompt strategy that transmits only the active code fragment to the LLM, slashing token consumption by 70% and reducing generation latency to sub-2 seconds.
 * **Tiered SaaS Monetization:** Features a robust Free/Pro tier system using **Clerk Billing** and a **PostgreSQL** database, heavily secured by `rate-limiter-flexible` to process sub-15ms access checks and prevent API abuse.
 * **Modern UI/UX:** A highly responsive, minimal interface built with **Tailwind CSS v4** and **shadcn/ui**, optimized for DOM repaints and top-tier Lighthouse performance.
+
+---
+
+## ⚙️ Inngest Pipeline & Background Workers
+
+Generating complex UI code with LLMs synchronously often leads to Vercel/Next.js server timeouts. Apex Builder solves this by completely decoupling the AI workload using **Inngest**:
+
+1. **Event Ingestion:** When a user submits a prompt, the Next.js server instantly fires an event to the Inngest pipeline and returns a 200 OK status to the client.
+2. **Background Worker Execution:** The `inngest` folder houses dedicated worker functions. The Inngest execution engine triggers the Next.js API route (`/api/inngest`), acting as a highly resilient background worker to process the Gemini API request without blocking the main thread.
+3. **State Syncing:** **TanStack Query** polls the backend, instantly updating the UI once the background worker finalizes the E2B sandbox code compilation. This guarantees 99.99% task reliability.
 
 ---
 
@@ -83,22 +92,22 @@ Push the Prisma schema to your PostgreSQL database to sync the tables:
 npx prisma db push
 ```
 
-### 4. Run the Development Server
+### 4. Run the Development Server & Workers
 
-Because this architecture relies on Inngest for async Next.js API routes, you need to run both the Next.js app and the Inngest dev server simultaneously.
+Because this architecture relies on an asynchronous pipeline, you must run both the Next.js app and the Inngest development server so the background workers can process AI requests.
 
-**Start the Next.js App:**
+**Terminal 1: Start the Next.js App (Worker Endpoint)**
 ```bash
 npm run dev
 ```
 
-**Start the Inngest Dev Server (in a new terminal):**
+**Terminal 2: Start the Inngest Pipeline Server**
 ```bash
 npx inngest-cli@latest dev
 ```
 
 * The Next.js app will be running at [http://localhost:3000](http://localhost:3000)
-* The Inngest UI (to monitor AI jobs) will be at [http://localhost:8288](http://localhost:8288)
+* The Inngest UI (to monitor your worker events and pipelines) will be at [http://localhost:8288](http://localhost:8288)
 
 ---
 
